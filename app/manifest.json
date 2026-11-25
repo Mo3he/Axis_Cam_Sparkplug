@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "2.0.0",
+  "acapPackageConf": {
+    "setup": {
+      "appName": "Sparkplug_Edge",
+      "friendlyName": "Sparkplug Edge Node",
+      "vendor": "moshe@mohome.net",
+      "vendorId": "70ee172dd9",
+      "vendorUrl": "https://github.com/Mo3he/Axis_Cam_Sparkplug",
+      "version": "0.1.0",
+      "architecture": "BUILDARCH",
+      "runMode": "respawn",
+      "compatibleOsVersions": [
+        {
+          "min": "11.11",
+          "max": "13"
+        }
+      ]
+    },
+    "configuration": {
+      "settingPage": "index.html",
+      "reverseProxy": [
+        {
+          "apiPath": "api",
+          "target": "http://localhost:2214/",
+          "access": "admin"
+        }
+      ]
+    }
+  },
+  "resources": {
+    "dbus": {
+      "requiredMethods": [
+        "com.axis.HTTPConf1.VAPIXServiceAccounts1.GetCredentials"
+      ]
+    }
+  }
+}

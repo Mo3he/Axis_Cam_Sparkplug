@@ -1,0 +1,1008 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sparkplug Edge Node</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f5f6f8;
+        --card: #ffffff;
+        --text: #1c1f24;
+        --muted: #5b636e;
+        --border: #d8dce2;
+        --accent: #0b6ec4;
+        --ok: #1e8e3e;
+        --bad: #c0392b;
+      }
+      :root[data-theme="dark"] {
+        color-scheme: dark;
+        --bg: #16191d;
+        --card: #1e2228;
+        --text: #e7eaee;
+        --muted: #9aa3ae;
+        --border: #333a43;
+        --accent: #4da3ff;
+        --ok: #4cc46a;
+        --bad: #ff7262;
+      }
+      body {
+        margin: 0;
+        padding: 24px;
+        background: var(--bg);
+        color: var(--text);
+        font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      }
+      main {
+        max-width: 960px;
+        margin: 0 auto;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+      h1 {
+        font-size: 18px;
+        margin: 0;
+      }
+      h2 {
+        font-size: 15px;
+        margin: 0 0 12px;
+      }
+      section {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 0 16px;
+      }
+      label {
+        display: block;
+        margin-bottom: 12px;
+      }
+      label span {
+        display: block;
+        color: var(--muted);
+        margin-bottom: 4px;
+      }
+      label.inline {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      label.inline span {
+        display: inline;
+        margin: 0;
+        color: var(--text);
+      }
+      input[type="text"],
+      input[type="number"],
+      select,
+      textarea {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 7px 8px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--bg);
+        color: var(--text);
+        font: inherit;
+      }
+      textarea {
+        min-height: 90px;
+      }
+      button {
+        padding: 7px 14px;
+        border: 0;
+        border-radius: 6px;
+        background: var(--accent);
+        color: #fff;
+        cursor: pointer;
+        font: inherit;
+      }
+      button.secondary {
+        background: transparent;
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+      button.danger {
+        background: transparent;
+        color: var(--bad);
+        border: 1px solid var(--border);
+      }
+      .actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .hint {
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 2px;
+      }
+      .msg {
+        min-height: 20px;
+        color: var(--muted);
+      }
+      .msg.error {
+        color: var(--bad);
+      }
+      .metric-list {
+        display: flex;
+        flex-direction: column;
+        border-top: 1px solid var(--border);
+      }
+      .metric-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) auto;
+        gap: 6px 20px;
+        align-items: center;
+        padding: 12px 4px;
+        border-bottom: 1px solid var(--border);
+      }
+      .metric-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+      }
+      .metric-title strong {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .badge {
+        flex: none;
+        padding: 1px 8px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        font-size: 12px;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .sub {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 2px;
+        overflow-wrap: anywhere;
+      }
+      .value {
+        font-size: 16px;
+        font-weight: 600;
+      }
+      .row-actions {
+        display: flex;
+        gap: 6px;
+        white-space: nowrap;
+      }
+      .row-actions button {
+        padding: 5px 10px;
+      }
+      .empty {
+        padding: 16px 4px;
+        color: var(--muted);
+      }
+      @media (max-width: 600px) {
+        body {
+          padding: 12px;
+        }
+        .metric-row {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+      .dot {
+        display: inline-block;
+        flex: none;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--muted);
+      }
+      .dot.ok {
+        background: var(--ok);
+      }
+      .dot.bad {
+        background: var(--bad);
+      }
+      .hidden {
+        display: none;
+      }
+      .status-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+        gap: 10px 20px;
+      }
+      .status-grid div span {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .status-grid .state {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .wide {
+        grid-column: 1 / -1;
+      }
+      h3 {
+        font-size: 14px;
+        margin: 8px 0 10px;
+      }
+      fieldset {
+        border: 0;
+        border-top: 1px solid var(--border);
+        margin: 8px 0 0;
+        padding: 12px 0 0;
+      }
+      input[type="password"] {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 7px 8px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--bg);
+        color: var(--text);
+        font: inherit;
+      }
+      textarea.pem {
+        font: 12px/1.4 ui-monospace, Menlo, Consolas, monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Sparkplug Edge Node</h1>
+        <button class="secondary" id="theme" type="button">Theme</button>
+      </header>
+
+      <section>
+        <h2>Status</h2>
+        <div class="status-grid" id="status">Loading...</div>
+      </section>
+
+      <section>
+        <h2>Edge node</h2>
+        <form id="settings-form">
+          <label class="inline"><input type="checkbox" id="enabled" /><span>Enable the edge node</span></label>
+          <div class="grid">
+            <label>
+              <span>Group ID</span>
+              <input type="text" id="group_id" maxlength="64" />
+              <div class="hint">Required. The Sparkplug group, e.g. Building1.</div>
+            </label>
+            <label>
+              <span>Edge node ID</span>
+              <input type="text" id="edge_node_id" maxlength="64" />
+              <div class="hint">Leave empty to use the serial number.</div>
+            </label>
+            <label>
+              <span>Device ID</span>
+              <input type="text" id="device_id" maxlength="64" />
+              <div class="hint">Optional. Publishes the metrics as a Sparkplug device (DBIRTH/DDATA).</div>
+            </label>
+            <label>
+              <span>Primary host ID</span>
+              <input type="text" id="primary_host_id" maxlength="64" />
+              <div class="hint">Optional. Buffers data while this host is offline and rebirths when it returns.</div>
+            </label>
+            <label>
+              <span>Specification</span>
+              <select id="spec_version">
+                <option value="3.0">Sparkplug 3.0</option>
+                <option value="2.2">Sparkplug B 2.2</option>
+              </select>
+            </label>
+          </div>
+
+          <fieldset>
+            <h3>MQTT broker</h3>
+            <div class="grid">
+              <label>
+                <span>Host</span>
+                <input type="text" id="host" maxlength="255" />
+              </label>
+              <label>
+                <span>Port</span>
+                <input type="number" id="port" min="1" max="65535" />
+              </label>
+              <label>
+                <span>Alternate brokers</span>
+                <input type="text" id="alternates" placeholder="host:port, host:port" />
+                <div class="hint">Tried in order when the broker above cannot be reached.</div>
+              </label>
+              <label>
+                <span>Client ID</span>
+                <input type="text" id="client_id" maxlength="127" />
+              </label>
+              <label>
+                <span>Username</span>
+                <input type="text" id="username" maxlength="127" autocomplete="off" />
+              </label>
+              <label>
+                <span>Password</span>
+                <input type="password" id="password" maxlength="127" autocomplete="new-password" />
+                <div class="hint" id="password-hint"></div>
+              </label>
+              <label>
+                <span>Keepalive (seconds)</span>
+                <input type="number" id="keepalive" min="10" max="3600" />
+              </label>
+            </div>
+            <label class="inline"><input type="checkbox" id="tls" /><span>Use TLS</span></label>
+            <label class="inline"><input type="checkbox" id="tls_verify" /><span>Verify the broker's certificate</span></label>
+          </fieldset>
+
+          <div class="actions">
+            <button type="submit">Save settings</button>
+            <span class="msg" id="settings-msg"></span>
+          </div>
+        </form>
+      </section>
+
+      <section>
+        <h2>TLS certificates</h2>
+        <p class="hint">
+          Optional. A CA certificate verifies a broker with a private CA; a client certificate and key are for brokers
+          that require mutual TLS. Without them the device's trusted CAs are used.
+        </p>
+        <div class="status-grid" id="tls-status"></div>
+        <form id="tls-form">
+          <div class="grid">
+            <label>
+              <span>CA certificate (PEM)</span>
+              <textarea class="pem" id="tls-ca" spellcheck="false"></textarea>
+            </label>
+            <label>
+              <span>Client certificate (PEM)</span>
+              <textarea class="pem" id="tls-cert" spellcheck="false"></textarea>
+            </label>
+            <label>
+              <span>Client key (PEM)</span>
+              <textarea class="pem" id="tls-key" spellcheck="false"></textarea>
+            </label>
+            <label>
+              <span>Key passphrase</span>
+              <input type="password" id="tls-passphrase" autocomplete="off" />
+              <div class="hint">Only for an encrypted key. The key is stored decrypted, readable only by the app.</div>
+            </label>
+          </div>
+          <div class="actions">
+            <button type="submit">Save certificates</button>
+            <button type="button" class="danger" id="tls-delete">Remove certificates</button>
+            <span class="msg" id="tls-msg"></span>
+          </div>
+          <div class="hint">Empty fields keep the stored certificate.</div>
+        </form>
+      </section>
+
+      <section>
+        <h2>Metrics</h2>
+        <p class="hint">
+          A metric follows one field of a device event and is published when its value changes. A writable metric
+          has no event: a host writes it, and the app sends the device event "Metric written by host" for action
+          rules.
+        </p>
+        <div class="metric-list" id="metrics"></div>
+        <div class="actions" style="margin-top: 12px">
+          <button type="button" id="add">Add metric</button>
+          <span class="msg" id="metrics-msg"></span>
+        </div>
+      </section>
+
+      <section id="editor" class="hidden">
+        <h2 id="editor-title">Metric</h2>
+        <form id="metric-form">
+          <div class="grid">
+            <label>
+              <span>Name</span>
+              <input type="text" id="m-name" maxlength="127" required />
+              <div class="hint">Use / to group metrics, e.g. Air/CO2.</div>
+            </label>
+            <label>
+              <span>Data type</span>
+              <select id="m-datatype">
+                <option>Boolean</option>
+                <option>Int32</option>
+                <option>Int64</option>
+                <option>Float</option>
+                <option>Double</option>
+                <option>String</option>
+              </select>
+            </label>
+          </div>
+          <label class="inline"><input type="checkbox" id="m-writable" /><span>Writable by the host (no event)</span></label>
+
+          <div id="m-event-fields">
+            <label>
+              <span>Device event</span>
+              <select id="o-event"></select>
+              <div class="hint" id="o-event-hint">Loading the device's events...</div>
+            </label>
+            <div class="grid">
+              <label>
+                <span>Only when field</span>
+                <select id="o-source-key"></select>
+              </label>
+              <label>
+                <span>equals</span>
+                <input type="text" id="o-source-value" list="o-source-values" />
+                <datalist id="o-source-values"></datalist>
+              </label>
+              <label>
+                <span>Value from field</span>
+                <select id="o-data-key"></select>
+              </label>
+            </div>
+            <label class="inline" id="m-invert-row"
+              ><input type="checkbox" id="m-invert" /><span>Invert (true is published as false)</span></label
+            >
+          </div>
+
+          <div class="actions">
+            <button type="submit">Save metric</button>
+            <button type="button" class="secondary" id="cancel">Cancel</button>
+            <span class="msg" id="editor-msg"></span>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <script>
+      "use strict";
+      const APP = "Sparkplug_Edge";
+      const $ = (id) => document.getElementById(id);
+      const NAMESPACES = {
+        "http://www.onvif.org/ver10/topics": "tns1",
+        "http://www.axis.com/2009/event/topics": "tnsaxis",
+      };
+      const WSTOP = "http://docs.oasis-open.org/wsn/t-1";
+      const AEV = "http://www.axis.com/vapix/ws/event1";
+      const TEXT_FIELDS = ["host", "client_id", "username", "group_id", "edge_node_id", "device_id", "primary_host_id"];
+
+      let metrics = [];
+      let events = [];
+      let editing = -1;
+      let eventsReady = null;
+
+      const storedTheme = localStorage.getItem(APP + ".theme");
+      if (storedTheme) document.documentElement.setAttribute("data-theme", storedTheme);
+      $("theme").addEventListener("click", () => {
+        const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", next);
+        localStorage.setItem(APP + ".theme", next);
+      });
+
+      function setMsg(id, text, isError) {
+        $(id).textContent = text;
+        $(id).classList.toggle("error", Boolean(isError));
+      }
+
+      function el(tag, text, className) {
+        const node = document.createElement(tag);
+        if (text !== undefined) node.textContent = text;
+        if (className) node.className = className;
+        return node;
+      }
+
+      async function api(path, options) {
+        const response = await fetch("api/" + path, { credentials: "same-origin", ...options });
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`);
+        return body;
+      }
+
+      function postJson(path, body) {
+        return api(path, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+      }
+
+      /* ---------------------------------------------------------- settings */
+
+      async function loadSettings() {
+        const s = await api("settings");
+        $("enabled").checked = s.enabled;
+        for (const name of TEXT_FIELDS) $(name).value = s[name] || "";
+        $("port").value = s.port || "";
+        $("port").placeholder = String(s.effective.port);
+        $("edge_node_id").placeholder = s.effective.edge_node_id;
+        $("client_id").placeholder = s.effective.client_id;
+        $("keepalive").value = s.keepalive;
+        $("tls").checked = s.tls;
+        $("tls_verify").checked = s.tls_verify;
+        $("spec_version").value = s.spec_version;
+        $("alternates").value = s.alternates.map((a) => (a.port ? `${a.host}:${a.port}` : a.host)).join(", ");
+        $("password").value = "";
+        $("password").placeholder = s.password_set ? "unchanged" : "";
+        $("password-hint").textContent = s.password_set ? "A password is stored. Enter a new one to replace it." : "";
+      }
+
+      function parseAlternates(text) {
+        return text
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .map((entry) => {
+            const match = entry.match(/^(.*):(\d+)$/);
+            return match ? { host: match[1], port: Number(match[2]) } : { host: entry, port: 0 };
+          });
+      }
+
+      $("settings-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const body = {
+          enabled: $("enabled").checked,
+          port: Number($("port").value || 0),
+          keepalive: Number($("keepalive").value || 60),
+          tls: $("tls").checked,
+          tls_verify: $("tls_verify").checked,
+          spec_version: $("spec_version").value,
+          alternates: parseAlternates($("alternates").value),
+        };
+        for (const name of TEXT_FIELDS) body[name] = $(name).value.trim();
+        if ($("password").value) body.password = $("password").value;
+        setMsg("settings-msg", "Saving...");
+        try {
+          await postJson("settings", body);
+          setMsg("settings-msg", "Saved.");
+          await loadSettings();
+          setTimeout(refresh, 1500);
+        } catch (error) {
+          setMsg("settings-msg", error.message, true);
+        }
+      });
+
+      /* --------------------------------------------------------------- TLS */
+
+      function certSummary(list) {
+        if (!list || !list.length) return "none";
+        const leaf = list[0];
+        const until = leaf.not_after ? `, until ${new Date(leaf.not_after * 1000).toLocaleDateString()}` : "";
+        return `${leaf.subject || "certificate"}${until}`;
+      }
+
+      async function loadTls() {
+        const profile = await api("tls");
+        const box = $("tls-status");
+        box.replaceChildren();
+        const fields = [
+          ["CA certificate", certSummary(profile.ca)],
+          ["Client certificate", certSummary(profile.cert)],
+          ["Client key", profile.key ? `${profile.key.type || "key"} ${profile.key.bits || ""}`.trim() : "none"],
+        ];
+        for (const [label, value] of fields) {
+          const item = el("div");
+          item.append(el("span", label), el("div", value));
+          box.append(item);
+        }
+      }
+
+      $("tls-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const body = {};
+        for (const [field, id] of [["ca", "tls-ca"], ["cert", "tls-cert"], ["key", "tls-key"], ["passphrase", "tls-passphrase"]]) {
+          if ($(id).value.trim()) body[field] = $(id).value.trim();
+        }
+        if (!body.ca && !body.cert && !body.key) {
+          setMsg("tls-msg", "Paste a certificate or key first.", true);
+          return;
+        }
+        setMsg("tls-msg", "Saving...");
+        try {
+          await postJson("tls", body);
+          for (const id of ["tls-ca", "tls-cert", "tls-key", "tls-passphrase"]) $(id).value = "";
+          setMsg("tls-msg", "Saved.");
+          loadTls();
+        } catch (error) {
+          setMsg("tls-msg", error.message, true);
+        }
+      });
+
+      $("tls-delete").addEventListener("click", async () => {
+        if (!confirm("Remove the stored CA and client certificates?")) return;
+        try {
+          await postJson("tls/delete", {});
+          setMsg("tls-msg", "Removed.");
+          loadTls();
+        } catch (error) {
+          setMsg("tls-msg", error.message, true);
+        }
+      });
+
+      /* ------------------------------------------------------------ status */
+
+      function renderStatus(status) {
+        const box = $("status");
+        box.replaceChildren();
+        const spb = status.sparkplug;
+        const mqtt = status.mqtt;
+        let stateText = "Disabled";
+        let dot = "";
+        if (status.enabled && spb.online) {
+          stateText = spb.host_online ? "Online" : "Online, host offline (buffering)";
+          dot = "ok";
+        } else if (status.enabled) {
+          stateText = mqtt.connected ? "Connected, no birth yet" : "Connecting to the broker";
+          dot = "bad";
+        }
+        const state = el("div");
+        const stateValue = el("div", undefined, "state");
+        stateValue.append(el("span", undefined, "dot " + dot), stateText);
+        state.append(el("span", "Status"), stateValue);
+        box.append(state);
+        const broker = mqtt.active_host ? `${mqtt.active_host}:${mqtt.active_port}${mqtt.use_tls ? " (TLS)" : ""}` : "-";
+        const fields = [
+          ["Broker", broker],
+          ["Edge node", spb.group_id ? `${spb.group_id} / ${spb.edge_node_id}${spb.device_id ? " / " + spb.device_id : ""}` : "-"],
+          ["Session", `bdSeq ${spb.bdseq}, seq ${spb.seq}`],
+          ["Messages", `${spb.data_published} DATA, ${spb.commands_received} writes`],
+          ["Buffered", String(spb.buffered)],
+          ["Version", status.version],
+        ];
+        for (const [label, value] of fields) {
+          const item = el("div");
+          item.append(el("span", label), el("div", value));
+          box.append(item);
+        }
+      }
+
+      /* Readable event name from the device's declarations, else the topic
+         names without namespaces. */
+      function eventLabel(topic) {
+        const key = topic.join("/");
+        const known = events.find((e) => e.topic.join("/") === key);
+        return known ? known.label : topic.map((t) => t.split(":").pop()).join(" / ");
+      }
+
+      function renderMetrics(live) {
+        const list = $("metrics");
+        list.replaceChildren();
+        if (!metrics.length) {
+          list.append(el("div", "No metrics yet. Add one to publish a device event over Sparkplug.", "empty"));
+          return;
+        }
+        metrics.forEach((metric, index) => {
+          const state = (live || []).find((s) => s.name === metric.name);
+          const row = el("div", undefined, "metric-row");
+
+          const info = el("div");
+          const title = el("div", undefined, "metric-title");
+          const health = !state ? "" : state.error ? "bad" : state.writable || state.subscribed ? "ok" : "bad";
+          title.append(el("span", undefined, "dot " + health), el("span", metric.datatype, "badge"));
+          if (metric.writable) title.append(el("span", "writable", "badge"));
+          title.append(el("strong", metric.name));
+          let sourceText = "Written by the host";
+          if (!metric.writable) {
+            const filter = metric.event.source_key ? `, ${metric.event.source_key} ${metric.event.source_value}` : "";
+            sourceText = `${eventLabel(metric.event.topic)}${filter} (${metric.event.data_key})`;
+          }
+          const source = el("div", sourceText, "sub");
+          if (!metric.writable) source.title = metric.event.topic.join("/");
+          info.append(title, source);
+
+          const value = el("div");
+          value.append(el("div", state && state.value !== null ? state.value : "-", "value"));
+          let last = metric.writable ? "No write yet" : "No event yet";
+          if (state && state.last_event_time)
+            last = `Last event ${new Date(state.last_event_time * 1000).toLocaleTimeString()}: ${state.last_event_value}`;
+          else if (state && metric.writable && state.value !== null) last = "Written by the host";
+          value.append(el("div", last, "sub"));
+          if (state && state.error) value.append(el("div", state.error, "sub msg error"));
+
+          const actions = el("div", undefined, "row-actions");
+          const edit = el("button", "Edit", "secondary");
+          edit.type = "button";
+          edit.addEventListener("click", () => openEditor(index));
+          const remove = el("button", "Delete", "danger");
+          remove.type = "button";
+          remove.addEventListener("click", () => deleteMetric(index));
+          actions.append(edit, remove);
+
+          row.append(info, value, actions);
+          list.append(row);
+        });
+      }
+
+      async function refresh() {
+        try {
+          const status = await api("status");
+          renderStatus(status);
+          renderMetrics(status.metrics);
+        } catch (error) {
+          $("status").textContent = "Could not load the status: " + error.message;
+        }
+      }
+
+      async function loadMetrics() {
+        metrics = (await api("metrics")).metrics;
+      }
+
+      async function saveMetrics(list) {
+        await postJson("metrics", { metrics: list });
+        metrics = list;
+        setTimeout(refresh, 700);
+      }
+
+      async function deleteMetric(index) {
+        if (!confirm(`Delete metric "${metrics[index].name}"?`)) return;
+        try {
+          await saveMetrics(metrics.filter((_, i) => i !== index));
+          setMsg("metrics-msg", "Deleted.");
+        } catch (error) {
+          setMsg("metrics-msg", error.message, true);
+        }
+      }
+
+      /* ------------------------------------------------------- device events */
+
+      /* Axis writes deeper topic levels without a namespace; they inherit
+         their parent's (tns1:Device/tnsaxis:IO/VirtualInput is tnsaxis). */
+      function topicNamespace(node, parentNs) {
+        if (node.namespaceURI === null) return parentNs;
+        return NAMESPACES[node.namespaceURI];
+      }
+
+      function simpleItems(parent, kind) {
+        const items = [];
+        for (const instance of parent.getElementsByTagNameNS("*", kind)) {
+          for (const item of instance.getElementsByTagNameNS("*", "SimpleItemInstance")) {
+            items.push({
+              name: item.getAttribute("Name"),
+              type: (item.getAttribute("Type") || "").replace(/^xsd:/, ""),
+              state: item.getAttribute("isPropertyState") === "true",
+              values: [...item.getElementsByTagNameNS("*", "Value")].map((v) => v.textContent),
+            });
+          }
+        }
+        return items;
+      }
+
+      function walkTopics(node, path, labels, out, parentNs) {
+        for (const child of node.children) {
+          const ns = topicNamespace(child, parentNs);
+          if (!ns) continue;
+          const nice = child.getAttributeNS(AEV, "NiceName");
+          const nextPath = [...path, `${ns}:${child.localName}`];
+          const nextLabels = [...labels, nice || child.localName];
+          if (child.getAttributeNS(WSTOP, "topic") === "true") {
+            const message = child.getElementsByTagNameNS("*", "MessageInstance")[0];
+            if (message) {
+              const data = simpleItems(message, "DataInstance");
+              if (data.length) {
+                out.push({
+                  topic: nextPath,
+                  label: nextLabels.join(" / "),
+                  sources: simpleItems(message, "SourceInstance"),
+                  data,
+                });
+              }
+            }
+          }
+          walkTopics(child, nextPath, nextLabels, out, ns);
+        }
+      }
+
+      async function loadEvents() {
+        const soap =
+          '<?xml version="1.0" encoding="utf-8"?>' +
+          '<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope"><s:Body>' +
+          '<GetEventInstances xmlns="http://www.axis.com/vapix/ws/event1"/></s:Body></s:Envelope>';
+        try {
+          const response = await fetch("/vapix/services", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/soap+xml; charset=utf-8" },
+            body: soap,
+          });
+          const xml = new DOMParser().parseFromString(await response.text(), "application/xml");
+          const topicSet = xml.getElementsByTagNameNS(WSTOP, "TopicSet")[0];
+          events = [];
+          if (topicSet) walkTopics(topicSet, [], [], events, undefined);
+          events.sort((a, b) => a.label.localeCompare(b.label));
+          $("o-event-hint").textContent = `${events.length} events with data fields on this device.`;
+        } catch (error) {
+          $("o-event-hint").textContent = "Could not load the device's events: " + error.message;
+        }
+      }
+
+      function fillEventSelect(topic) {
+        const select = $("o-event");
+        select.replaceChildren(el("option", "Choose an event...", ""));
+        select.options[0].value = "";
+        const key = topic ? topic.join("/") : "";
+        let found = !key;
+        const counts = {};
+        for (const event of events) counts[event.label] = (counts[event.label] || 0) + 1;
+        events.forEach((event, index) => {
+          const path = event.topic.join("/");
+          const option = el("option", counts[event.label] > 1 ? `${event.label} (${path})` : event.label);
+          option.title = path;
+          option.value = String(index);
+          if (event.topic.join("/") === key) {
+            option.selected = true;
+            found = true;
+          }
+          select.append(option);
+        });
+        if (!found) {
+          /* Bound to an event this camera does not declare (any more). */
+          const option = el("option", `${key} (not declared on this device)`);
+          option.value = "custom";
+          option.dataset.topic = key;
+          option.selected = true;
+          select.append(option);
+        }
+      }
+
+      function selectedEvent() {
+        const value = $("o-event").value;
+        if (value === "" || value === "custom") return null;
+        return events[Number(value)];
+      }
+
+      function fillFieldSelects(sourceKey, sourceValue, dataKey) {
+        const event = selectedEvent();
+        const sources = event ? event.sources : [];
+        const data = event ? event.data : [];
+        const sourceSelect = $("o-source-key");
+        sourceSelect.replaceChildren(el("option", "(any)"));
+        sourceSelect.options[0].value = "";
+        for (const item of sources) {
+          const option = el("option", item.name);
+          option.value = item.name;
+          sourceSelect.append(option);
+        }
+        if (sourceKey && !sources.some((s) => s.name === sourceKey)) {
+          const option = el("option", sourceKey);
+          option.value = sourceKey;
+          sourceSelect.append(option);
+        }
+        sourceSelect.value = sourceKey || (sources[0] ? sources[0].name : "");
+        $("o-source-value").value = sourceValue || "";
+        fillSourceValues();
+
+        const dataSelect = $("o-data-key");
+        dataSelect.replaceChildren();
+        for (const item of data) {
+          const option = el("option", `${item.name} (${item.type}${item.state ? ", state" : ""})`);
+          option.value = item.name;
+          dataSelect.append(option);
+        }
+        if (dataKey && !data.some((d) => d.name === dataKey)) {
+          const option = el("option", dataKey);
+          option.value = dataKey;
+          dataSelect.append(option);
+        }
+        if (dataKey) dataSelect.value = dataKey;
+      }
+
+      function fillSourceValues() {
+        const event = selectedEvent();
+        const source = event && event.sources.find((s) => s.name === $("o-source-key").value);
+        const list = $("o-source-values");
+        list.replaceChildren();
+        for (const value of source ? source.values : []) {
+          const option = el("option");
+          option.value = value;
+          list.append(option);
+        }
+        if (source && source.values.length && !$("o-source-value").value) $("o-source-value").value = source.values[0];
+      }
+
+      $("o-event").addEventListener("change", () => fillFieldSelects("", "", ""));
+      $("o-source-key").addEventListener("change", () => {
+        $("o-source-value").value = "";
+        fillSourceValues();
+      });
+
+      /* ------------------------------------------------------------ editor */
+
+      function showFields() {
+        const writable = $("m-writable").checked;
+        $("m-event-fields").classList.toggle("hidden", writable);
+        $("m-invert-row").classList.toggle("hidden", $("m-datatype").value !== "Boolean");
+      }
+      $("m-writable").addEventListener("change", showFields);
+      $("m-datatype").addEventListener("change", showFields);
+
+      /* For a new metric, suggest a name and data type from the event field. */
+      function suggestFromField() {
+        if (editing >= 0) return;
+        const event = selectedEvent();
+        const field = event && event.data.find((d) => d.name === $("o-data-key").value);
+        const types = { boolean: "Boolean", int: "Int32", double: "Double", string: "String" };
+        if (field && types[field.type]) $("m-datatype").value = types[field.type];
+        if (field && !$("m-name").value) $("m-name").value = field.name;
+        showFields();
+      }
+      $("o-data-key").addEventListener("change", suggestFromField);
+      $("o-event").addEventListener("change", suggestFromField);
+
+      async function openEditor(index) {
+        $("editor").classList.remove("hidden");
+        await eventsReady;
+        editing = index;
+        const metric = index >= 0
+          ? metrics[index]
+          : { name: "", datatype: "Boolean", writable: false, invert: false, event: { topic: [] } };
+        const event = metric.event || { topic: [] };
+        $("editor-title").textContent = index >= 0 ? `Edit ${metric.name}` : "Add metric";
+        $("m-name").value = metric.name;
+        $("m-datatype").value = metric.datatype;
+        $("m-writable").checked = metric.writable;
+        $("m-invert").checked = Boolean(metric.invert);
+        fillEventSelect(event.topic.length ? event.topic : null);
+        fillFieldSelects(event.source_key, event.source_value, event.data_key);
+        showFields();
+        setMsg("editor-msg", "");
+        $("editor").scrollIntoView({ behavior: "smooth" });
+      }
+
+      $("add").addEventListener("click", () => openEditor(-1));
+      $("cancel").addEventListener("click", () => $("editor").classList.add("hidden"));
+
+      $("metric-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const metric = {
+          name: $("m-name").value.trim(),
+          datatype: $("m-datatype").value,
+          writable: $("m-writable").checked,
+        };
+        if (!metric.writable) {
+          const selected = $("o-event").selectedOptions[0];
+          let topic = [];
+          if (selected && selected.value === "custom") topic = selected.dataset.topic.split("/");
+          else if (selectedEvent()) topic = selectedEvent().topic;
+          if (!topic.length) {
+            setMsg("editor-msg", "Choose a device event.", true);
+            return;
+          }
+          metric.event = {
+            topic,
+            source_key: $("o-source-key").value,
+            source_value: $("o-source-key").value ? $("o-source-value").value.trim() : "",
+            data_key: $("o-data-key").value,
+          };
+          if (metric.datatype === "Boolean") metric.invert = $("m-invert").checked;
+        }
+        const list = metrics.slice();
+        if (editing >= 0) list[editing] = metric;
+        else list.push(metric);
+        setMsg("editor-msg", "Saving...");
+        try {
+          await saveMetrics(list);
+          $("editor").classList.add("hidden");
+          setMsg("metrics-msg", "Saved.");
+        } catch (error) {
+          setMsg("editor-msg", error.message, true);
+        }
+      });
+
+      /* -------------------------------------------------------------- start */
+
+      (async () => {
+        try {
+          await Promise.all([loadSettings(), loadMetrics(), loadTls()]);
+        } catch (error) {
+          setMsg("settings-msg", "Could not load the settings: " + error.message, true);
+        }
+        eventsReady = loadEvents().then(refresh);
+        await refresh();
+        setInterval(refresh, 5000);
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "app": "Sparkplug_Edge",
+  "friendlyName": "Sparkplug Edge Node",
+  "versionPolicy": "patch",
+  "upstream": {
+    "type": "none",
+    "note": "No upstream dependency. Releases are cut manually with workflow_dispatch."
+  },
+  "build": {
+    "command": "./build.sh",
+    "env": {}
+  },
+  "signing": {
+    "skip": []
+  }
+}

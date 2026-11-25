@@ -1,0 +1,202 @@
+{
+  "metrics": [
+    {
+      "name": "Air/Temperature",
+      "datatype": "Double",
+      "event": {
+        "topic": [
+          "tnsaxis:AirQualityMonitor",
+          "tnsaxis:Metadata"
+        ],
+        "source_key": "",
+        "source_value": "",
+        "data_key": "Temperature"
+      },
+      "writable": false
+    },
+    {
+      "name": "Air/Humidity",
+      "datatype": "Double",
+      "event": {
+        "topic": [
+          "tnsaxis:AirQualityMonitor",
+          "tnsaxis:Metadata"
+        ],
+        "source_key": "",
+        "source_value": "",
+        "data_key": "Humidity"
+      },
+      "writable": false
+    },
+    {
+      "name": "Air/CO2",
+      "datatype": "Int32",
+      "event": {
+        "topic": [
+          "tnsaxis:AirQualityMonitor",
+          "tnsaxis:Metadata"
+        ],
+        "source_key": "",
+        "source_value": "",
+        "data_key": "CO2"
+      },
+      "writable": false
+    },
+    {
+      "name": "Air/PM1.0",
+      "datatype": "Double",
+      "event": {
+        "topic": [
+          "tnsaxis:AirQualityMonitor",
+          "tnsaxis:Metadata"
+        ],
+        "source_key": "",
+        "source_value": "",
+        "data_key": "PM1.0"
+      },
+      "writable": false
+    },
+    {
+      "name": "Air/PM2.5",
+      "datatype": "Double",
+      "event": {
+        "topic": [
+          "tnsaxis:AirQualityMonitor",
+          "tnsaxis:Metadata"
+        ],
+        "source_key": "",
+        "source_value": "",
+        "data_key": "PM2.5"
+      },
+      "writable": false
+    },
+    {
+      "name": "Air/PM4.0",
+      "datatype": "Double",
+      "event": {
+        "topic": [
+          "tnsaxis:AirQualityMonitor",
+          "tnsaxis:Metadata"
+        ],
+        "source_key": "",
+        "source_value": "",
+        "data_key": "PM4.0"
+      },
+      "writable": false
+    },
+    {
+      "name": "Air/PM10",
+      "datatype": "Double",
+      "event": {
+        "topic": [
+          "tnsaxis:AirQualityMonitor",
+          "tnsaxis:Metadata"
+        ],
+        "source_key": "",
+        "source_value": "",
+        "data_key": "PM10.0"
+      },
+      "writable": false
+    },
+    {
+      "name": "Air/VOC index",
+      "datatype": "Double",
+      "event": {
+        "topic": [
+          "tnsaxis:AirQualityMonitor",
+          "tnsaxis:Metadata"
+        ],
+        "source_key": "",
+        "source_value": "",
+        "data_key": "VOC"
+      },
+      "writable": false
+    },
+    {
+      "name": "Air/NOx index",
+      "datatype": "Double",
+      "event": {
+        "topic": [
+          "tnsaxis:AirQualityMonitor",
+          "tnsaxis:Metadata"
+        ],
+        "source_key": "",
+        "source_value": "",
+        "data_key": "NOx"
+      },
+      "writable": false
+    },
+    {
+      "name": "Air/AQI",
+      "datatype": "Int32",
+      "event": {
+        "topic": [
+          "tnsaxis:AirQualityMonitor",
+          "tnsaxis:Metadata"
+        ],
+        "source_key": "",
+        "source_value": "",
+        "data_key": "AQI"
+      },
+      "writable": false
+    },
+    {
+      "name": "Air/Heat index",
+      "datatype": "Int32",
+      "event": {
+        "topic": [
+          "tnsaxis:AirQualityMonitor",
+          "tnsaxis:Metadata"
+        ],
+        "source_key": "",
+        "source_value": "",
+        "data_key": "HeatIndex"
+      },
+      "writable": false
+    },
+    {
+      "name": "Air/Humidex",
+      "datatype": "Int32",
+      "event": {
+        "topic": [
+          "tnsaxis:AirQualityMonitor",
+          "tnsaxis:Metadata"
+        ],
+        "source_key": "",
+        "source_value": "",
+        "data_key": "Humidex"
+      },
+      "writable": false
+    },
+    {
+      "name": "Detection/Vaping",
+      "datatype": "Boolean",
+      "event": {
+        "topic": [
+          "tnsaxis:AirQualityMonitor",
+          "tnsaxis:Vaping"
+        ],
+        "data_key": "active",
+        "source_key": "",
+        "source_value": ""
+      },
+      "writable": false,
+      "invert": false
+    },
+    {
+      "name": "Detection/Masked",
+      "datatype": "Boolean",
+      "event": {
+        "topic": [
+          "tnsaxis:AirQualityMonitor",
+          "tnsaxis:Masking"
+        ],
+        "data_key": "active",
+        "source_key": "",
+        "source_value": ""
+      },
+      "writable": false,
+      "invert": false
+    }
+  ]
+}
